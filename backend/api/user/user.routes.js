@@ -25,7 +25,7 @@ router.post('/signup', async (req, res, next) => {
 
         const user = await query.signUp(body);
 
-        res.json({message: 'Account registered successfully'});
+        res.json({ message: 'Account registered successfully' });
     } catch (error) {
         return next(error);
     }
@@ -50,7 +50,10 @@ router.post('/login', async (req, res, next) => {
 
         if (user.length && match) {
             req.session.loggedin = true;
-            req.session.user = user;
+            req.session.user = {
+                id: user[0].id,
+                username: user[0].username
+            };
             res.json(req.session.user);
         } else {
             res.status(401);
@@ -60,6 +63,40 @@ router.post('/login', async (req, res, next) => {
     } catch (error) {
         return next(error);
     }
+});
+
+router.put('/edit', checkAuth, async (req, res, next) => {
+    try {
+        const user = await query.get(['id', 'username'], { username: req.body.username });
+
+        if (user.length && user[0].id !== req.session.user.id) {
+            res.status(409);
+            return next(new Error('Username already exists. Please choose another one.'));
+        }
+
+        const result = await query.update({
+            username: req.body.username,
+            avatar: req.body.avatar
+        }, req.session.user.id);
+
+        if (result.affectedRows === 0) {
+            throw new Error('Something went wrong!');
+        }
+
+        res.json({ message: 'Your changes have been saved.' });
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.get('/logout', (req, res, next) => {
+    req.session.destroy(error => {
+        if (error) {
+            return next(error);
+        }
+
+        res.json({ message: 'Successfully logged out.' });
+    });
 });
 
 router.get('/:username', checkAuth, async (req, res, next) => {

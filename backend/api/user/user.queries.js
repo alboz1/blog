@@ -12,7 +12,14 @@ async function signUp(user) {
     return result;
 }
 
+async function update(columns, condition) {
+    const [ user ] = await mysql.update('users', columns, condition);
+
+    return user;
+}
+
 module.exports = {
     get,
-    signUp
+    signUp,
+    update
 };

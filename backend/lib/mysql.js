@@ -14,7 +14,14 @@ function insertInto(tableName, values) {
     return db.query(sql, [values]);
 }
 
+function update(tableName, values, condition) {
+    const sql = `UPDATE ${tableName} SET ? WHERE id = ${condition}`;
+
+    return db.query(sql, values);
+}
+
 module.exports = {
     select,
-    insertInto
+    insertInto,
+    update
 };
