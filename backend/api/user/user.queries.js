@@ -7,7 +7,7 @@ async function get(columns, condition) {
 }
 
 async function signUp(user) {
-    const result = await mysql.insertInto('users', Object.values(user));
+    const result = await mysql.insertInto('users', user);
 
     return result;
 }

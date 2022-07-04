@@ -9,7 +9,7 @@ function select(tableName, columns, condition) {
 }
 
 function insertInto(tableName, values) {
-    const sql = `INSERT INTO ${tableName}(username, email, password, avatar) VALUES(?)`;
+    const sql = `INSERT INTO ${tableName} SET ?`;
 
     return db.query(sql, [values]);
 }

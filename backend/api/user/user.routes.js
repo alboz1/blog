@@ -25,7 +25,7 @@ router.post('/signup', async (req, res, next) => {
 
         const user = await query.signUp(body);
 
-        res.json({ message: 'Account registered successfully' });
+        res.json({ message: 'Account registered successfully.' });
     } catch (error) {
         return next(error);
     }
