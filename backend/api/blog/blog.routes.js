@@ -19,12 +19,11 @@ router.post('/create', checkAuth, async (req, res, next) => {
         title: req.body.title,
         body: req.body.body,
         author_id: req.session.user.id,
-        img_header: req.body.img_header,
-        slug: slug
+        img_header: req.body.img_header
     };
 
     try {
-        const post = await query.create(blogPost);
+        const post = await query.create(blogPost, slug, req.body.tags);
         
         res.json({ message: 'Blog post saved.'});
     } catch (error) {

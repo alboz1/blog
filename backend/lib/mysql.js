@@ -9,7 +9,19 @@ function select(tableName, columns, condition) {
 }
 
 function insertInto(tableName, values) {
-    const sql = `INSERT INTO ${tableName} SET ?`;
+    let sql = '';
+
+    if (values.length) {
+        sql = `INSERT INTO ${tableName}(name, blog_id) VALUES `;
+
+        values.forEach(value => {
+            sql += "(" + db.escape(value) + ", LAST_INSERT_ID()" + "),";
+        });
+
+        sql = sql.substring(0, sql.length - 1);
+    } else {
+        sql = `INSERT INTO ${tableName} SET ?`;
+    }
 
     return db.query(sql, [values]);
 }
