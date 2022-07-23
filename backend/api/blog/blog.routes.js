@@ -45,8 +45,70 @@ router.put('/edit/:id', checkAuth, async (req, res, next) => {
             author_id: req.session.user.id
         });
 
+        if (result.affectedRows === 0) {
+            res.status(404);
+            throw new Error('Something went wrong! Could\'nt update post');
+        }
+
         res.json({
             message: 'Blog post saved.'
+        });
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.put('/publish/:id', async (req, res, next) => {
+    try {
+        const result = await query.publish({
+            id: req.params.id,
+            author_id: req.session.user.id
+        });
+
+        if (result.affectedRows === 0) {
+            res.status(404);
+            throw new Error('Something went wrong! Could\'nt publish post.');
+        }
+        
+        res.json({
+            message: 'Blog post published.'
+        });
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.put('/private/:id', async (req, res, next) => {
+    try {
+        const result = await query.private({
+            id: req.params.id,
+            author_id: req.session.user.id
+        });
+
+        if (result.affectedRows === 0) {
+            res.status(404);
+            throw new Error('Something went wrong! Could\'nt unpublish post.');
+        }
+        
+        res.json({
+            message: 'Blog post unpublished.'
+        });
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.delete('/:id', async (req, res, next) => {
+    try {
+        const result = await query.deletePost({ id: req.params.id, author_id: req.session.user.id });
+
+        if (result.affectedRows === 0) {
+            res.status(404);
+            throw new Error('Something went wrong! Could\'nt delete post.');
+        }
+
+        res.json({
+            message: 'Blog post deleted.'
         });
     } catch (error) {
         next(error);

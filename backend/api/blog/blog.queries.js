@@ -1,4 +1,3 @@
-const { addListener } = require('../../config/db');
 const mysql = require('../../lib/mysql');
 
 async function create(blogPost, slug, array) {
@@ -15,7 +14,7 @@ async function update(columns, postID, slug, tags, condition) {
     const [ post ] = await mysql.update('blog_posts', columns, condition);
 
     if (post.affectedRows === 0) {
-        throw new Error('Something went wrong! Could\'nt update post');
+        return post;
     }
 
     const newSlug = `${slug}-${postID}`;
@@ -27,7 +26,28 @@ async function update(columns, postID, slug, tags, condition) {
     return result;
 }
 
+async function publish(condition) {
+    const [ post ] = await mysql.update('blog_posts', { published: true }, condition);
+    
+    return post;
+}
+
+async function private(condition) {
+    const [ post ] = await mysql.update('blog_posts', { published: false }, condition);
+
+    return post;
+}
+
+async function deletePost(condition) {
+    const [ post ] = await mysql.deleteFrom('blog_posts', condition);
+
+    return post;
+}
+
 module.exports = {
     create,
-    update
+    update,
+    publish,
+    private,
+    deletePost
 };

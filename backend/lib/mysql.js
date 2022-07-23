@@ -38,9 +38,14 @@ function update(tableName, values, condition) {
 }
 
 async function deleteFrom(tableName, condition) {
-    const sql = `DELETE FROM ${tableName} WHERE ?`;
+    let sql = `DELETE FROM ${tableName} WHERE `;
 
-    return db.query(sql, condition);
+    for (const prop in condition) {
+        sql += `${prop} = ${db.escape(condition[prop])} AND `;
+    }
+    sql = sql.substring(0, sql.length - 5);
+
+    return db.query(sql);
 }
 
 module.exports = {
