@@ -77,7 +77,9 @@ router.put('/edit', checkAuth, async (req, res, next) => {
         const result = await query.update({
             username: req.body.username,
             avatar: req.body.avatar
-        }, req.session.user.id);
+        }, {
+            id: req.session.user.id
+        });
 
         if (result.affectedRows === 0) {
             throw new Error('Something went wrong!');

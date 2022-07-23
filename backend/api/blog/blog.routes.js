@@ -6,7 +6,7 @@ const slugify = require('../../utils/slugify');
 
 const router = express.Router();
 
-router.post('/create', checkAuth, async (req, res, next) => {
+router.post('/', checkAuth, async (req, res, next) => {
     const { error } = blogSchema.validate(req.body);
 
     if (error) {
@@ -24,8 +24,30 @@ router.post('/create', checkAuth, async (req, res, next) => {
 
     try {
         const post = await query.create(blogPost, slug, req.body.tags);
-        
+
         res.json({ message: 'Blog post saved.'});
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.put('/edit/:id', checkAuth, async (req, res, next) => {
+    const slug = slugify(req.body.title);
+    const blogPost = {
+        title: req.body.title,
+        body: req.body.body,
+        img_header: req.body.img_header
+    };
+
+    try {
+        const result = await query.update(blogPost, req.params.id, slug, req.body.tags, {
+            id: req.params.id,
+            author_id: req.session.user.id
+        });
+
+        res.json({
+            message: 'Blog post saved.'
+        });
     } catch (error) {
         next(error);
     }
