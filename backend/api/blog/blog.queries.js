@@ -44,10 +44,32 @@ async function deletePost(condition) {
     return post;
 }
 
+async function get(slug) {
+    const [ result ] = await mysql.select('slugs', ['*'], {name: slug});
+    const [ post ] = await mysql.join(['slugs', 'blog_posts', 'users'], ['blog_id', 'id', 'id', 'author_id'], {published: true});
+
+    if (result.length === 0 || post.length === 0) {
+        return [];
+    }
+
+    const blogPost = {
+        id: post[0].id,
+        title: post[0].title,
+        body: post[0].body,
+        img_header: post[0].img_header,
+        author: post[0].username,
+        created_at: post[0].created_at,
+        updated_at: post[0].updated_at
+    }
+
+    return blogPost;
+}
+
 module.exports = {
     create,
     update,
     publish,
     private,
-    deletePost
+    deletePost,
+    get
 };

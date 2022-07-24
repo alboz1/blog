@@ -58,7 +58,7 @@ router.put('/edit/:id', checkAuth, async (req, res, next) => {
     }
 });
 
-router.put('/publish/:id', async (req, res, next) => {
+router.put('/publish/:id', checkAuth, async (req, res, next) => {
     try {
         const result = await query.publish({
             id: req.params.id,
@@ -78,7 +78,7 @@ router.put('/publish/:id', async (req, res, next) => {
     }
 });
 
-router.put('/private/:id', async (req, res, next) => {
+router.put('/private/:id', checkAuth, async (req, res, next) => {
     try {
         const result = await query.private({
             id: req.params.id,
@@ -98,7 +98,7 @@ router.put('/private/:id', async (req, res, next) => {
     }
 });
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', checkAuth, async (req, res, next) => {
     try {
         const result = await query.deletePost({ id: req.params.id, author_id: req.session.user.id });
 
@@ -110,6 +110,21 @@ router.delete('/:id', async (req, res, next) => {
         res.json({
             message: 'Blog post deleted.'
         });
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.get('/:slug', async (req, res, next) => {
+    try {
+        const result = await query.get(req.params.slug);
+
+        if (result.length === 0) {
+            res.status(404);
+            throw new Error('Not found.');
+        }
+
+        res.json(result);
     } catch (error) {
         next(error);
     }

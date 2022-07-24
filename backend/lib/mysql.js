@@ -48,9 +48,32 @@ async function deleteFrom(tableName, condition) {
     return db.query(sql);
 }
 
+async function join(tableNames, joinON, condition) {
+    let sql = `SELECT * FROM ${tableNames[0]}`;
+
+    if (Array.isArray(tableNames)) {
+        for (let i = 0; i < tableNames.length - 1; i++) {
+            if (i === 1) {
+                i++;
+            }
+            sql += `
+                JOIN ${tableNames[i > 1 ? i : i + 1]} ON
+                ${tableNames[i]}.${joinON[i]} = ${tableNames[i >= 2 ? i - 1 : i + 1]}.${joinON[i + 1]}
+            `;
+            if (tableNames.length === 2) {
+                break;
+            }
+        }
+        sql += `WHERE ${tableNames[1]}.?`;
+    }
+
+    return db.query(sql, condition);
+}
+
 module.exports = {
     select,
     insertInto,
     update,
-    deleteFrom
+    deleteFrom,
+    join
 };
