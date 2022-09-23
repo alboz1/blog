@@ -117,7 +117,11 @@ router.delete('/:id', checkAuth, async (req, res, next) => {
 
 router.get('/:slug', async (req, res, next) => {
     try {
-        const result = await query.get(req.params.slug);
+        const result = await query.get({
+            ['slugs.name']: req.params.slug,
+            ['blog_posts.published']: true
+        },
+        ['blog_posts.id', 'blog_posts.title', 'blog_posts.body', 'blog_posts.img_header', 'users.username', 'blog_posts.created_at','blog_posts.updated_at']);
 
         if (result.length === 0) {
             res.status(404);
@@ -125,6 +129,20 @@ router.get('/:slug', async (req, res, next) => {
         }
 
         res.json(result);
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.get('/user-posts/:user', async (req, res, next) => {
+    try {
+        const posts = await query.get({
+            ['users.username']: req.params.user,
+            ['blog_posts.published']: true
+        },
+        ['blog_posts.id', 'blog_posts.title', 'slugs.name AS slug']);
+
+        res.json(posts);
     } catch (error) {
         next(error);
     }

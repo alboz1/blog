@@ -2,78 +2,75 @@ const connection = require('../config/db');
 
 const db = connection.promise();
 
-function select(tableName, columns, condition) {
-    const sql = `SELECT ${[...columns]} FROM ${tableName} WHERE ?`;
+class Mysql {
+    sql = '';
 
-    return db.query(sql, condition);
-}
-
-function insertInto(tableName, values, lastInsertId) {
-    let sql = '';
-
-    if (Array.isArray(values)) {
-        sql = `INSERT INTO ${tableName}(name, blog_id) VALUES `;
-
-        values.forEach(value => {
-            sql += `(${db.escape(value)}, ${lastInsertId || 'LAST_INSERT_ID()'}),`;
-        });
-
-        sql = sql.substring(0, sql.length - 1);
-    } else {
-        sql = `INSERT INTO ${tableName} SET ?`;
+    async select(columns) {
+        this.sql = `SELECT ${columns || '??'} ${this.sql} `;
+        console.log(this.sql);
+        return db.query(this.sql, [columns]);
     }
 
-    return db.query(sql, [values]);
-}
+    from(tableName) {
+        this.sql += `FROM ${tableName}`;
 
-function update(tableName, values, condition) {
-    let sql = `UPDATE ${tableName} SET ? WHERE `;
-
-    for (const prop in condition) {
-        sql += `${prop} = ${db.escape(condition[prop])} AND `;
+        return this;
     }
-    sql = sql.substring(0, sql.length - 5);
 
-    return db.query(sql, values);
-}
-
-async function deleteFrom(tableName, condition) {
-    let sql = `DELETE FROM ${tableName} WHERE `;
-
-    for (const prop in condition) {
-        sql += `${prop} = ${db.escape(condition[prop])} AND `;
-    }
-    sql = sql.substring(0, sql.length - 5);
-
-    return db.query(sql);
-}
-
-async function join(tableNames, joinON, condition) {
-    let sql = `SELECT * FROM ${tableNames[0]}`;
-
-    if (Array.isArray(tableNames)) {
-        for (let i = 0; i < tableNames.length - 1; i++) {
-            if (i === 1) {
-                i++;
-            }
-            sql += `
-                JOIN ${tableNames[i > 1 ? i : i + 1]} ON
-                ${tableNames[i]}.${joinON[i]} = ${tableNames[i >= 2 ? i - 1 : i + 1]}.${joinON[i + 1]}
-            `;
-            if (tableNames.length === 2) {
-                break;
-            }
+    where(condition) {
+        this.sql += ' WHERE ';
+        for (const prop in condition) {
+            this.sql += `${prop} = ${db.escape(condition[prop])} AND `;
         }
-        sql += `WHERE ${tableNames[1]}.?`;
+        this.sql = this.sql.substring(0, this.sql.length - 5);
+
+        return this;
     }
 
-    return db.query(sql, condition);
+    insertInto(tableName, values, lastInsertId) {
+        if (Array.isArray(values)) {
+            this.sql = `INSERT INTO ${tableName}(name, blog_id) VALUES `;
+    
+            values.forEach(value => {
+                this.sql += `(${db.escape(value)}, ${lastInsertId || 'LAST_INSERT_ID()'}),`;
+            });
+    
+            this.sql = this.sql.substring(0, this.sql.length - 1);
+        } else {
+            this.sql = `INSERT INTO ${tableName} SET ?`;
+        }
+
+        return db.query(this.sql, [values]);
+    }
+
+    join(tableName1, tableName2, first, second) {
+        if (this.sql.includes(tableName1)) {
+            this.sql += ` JOIN ${tableName2} ON ${first} = ${second}`;
+        } else {
+            this.sql += `FROM ${tableName1} JOIN ${tableName2} ON ${first} = ${second}`;
+        }
+
+        return this;
+    }
+
+    update(tableName, values) {
+        this.sql = `UPDATE ${tableName} SET ? ${this.sql}`;
+
+        return db.query(this.sql, values);
+    }
+
+    delete() {
+        this.sql = `DELETE ${this.sql}`;
+
+        return db.query(this.sql);
+    }
 }
 
-module.exports = {
-    select,
-    insertInto,
-    update,
-    deleteFrom,
-    join
-};
+const _mysql = new Mysql();
+
+function mysql() {
+    _mysql.sql = '';
+    return _mysql;
+}
+
+module.exports = mysql;

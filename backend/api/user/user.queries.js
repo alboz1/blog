@@ -1,25 +1,17 @@
 const mysql = require('../../lib/mysql');
 
 async function get(columns, condition) {
-    const [ user ] = await mysql.select('users', columns, condition);
-
+    const [ user ] = await mysql().from('users').where(condition).select(columns);
     return user;
 }
 
-async function signUp(user) {
-    const result = await mysql.insertInto('users', user);
-
-    return result;
-}
-
 async function update(columns, condition) {
-    const [ user ] = await mysql.update('users', columns, condition);
+    const [ user ] = await mysql().where(condition).update('users', columns);
 
     return user;
 }
 
 module.exports = {
     get,
-    signUp,
     update
 };
