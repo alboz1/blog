@@ -1,6 +1,6 @@
 const express = require('express');
 
-const query = require('./user.queries');
+const query = require('./users.queries');
 const checkAuth = require('../../middleware/checkAuth');
 const slugify = require('../../utils/slugify');
 

@@ -1,8 +1,8 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 
-const userSchema = require('../user/user.schema');
-const userQueries = require('../user/user.queries');
+const userSchema = require('../users/users.schema');
+const userQueries = require('../users/users.queries');
 const query = require('./auth.queries');
 
 const slugify = require('../../utils/slugify');

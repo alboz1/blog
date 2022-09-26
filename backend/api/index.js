@@ -1,8 +1,9 @@
 const express = require('express');
 
-const userRoutes = require('./user/user.routes');
-const blogRoutes = require('./blog/blog.routes');
+const userRoutes = require('./users/users.routes');
+const postRoutes = require('./posts/posts.routes');
 const authRoutes = require('./auth/auth.routes');
+const tagRoutes = require('./tags/tags.routes');
 
 const router = express.Router();
 
@@ -12,8 +13,9 @@ router.get('/', (req, res) => {
     });
 });
 
-router.use('/user', userRoutes);
-router.use('/blog', blogRoutes);
+router.use('/users', userRoutes);
+router.use('/posts', postRoutes);
+router.use('/tags', tagRoutes);
 router.use('/auth', authRoutes);
 
 module.exports = router;

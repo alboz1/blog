@@ -7,7 +7,7 @@ class Mysql {
 
     async select(columns) {
         this.sql = `SELECT ${columns || '??'} ${this.sql} `;
-        console.log(this.sql);
+
         return db.query(this.sql, [columns]);
     }
 

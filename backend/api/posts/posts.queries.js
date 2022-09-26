@@ -57,11 +57,18 @@ async function get(condition, columns) {
     return post;
 }
 
+async function getOne(condition) {
+    const [ post ] = await mysql().from('blog_posts').where(condition).select('*');
+
+    return post;
+}
+
 module.exports = {
     create,
     update,
     publish,
     private,
     deletePost,
-    get
+    get,
+    getOne
 };
