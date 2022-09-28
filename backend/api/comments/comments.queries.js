@@ -7,6 +7,27 @@ async function addComment(comment) {
     return addedComment;
 }
 
+async function get(id) {
+    const [ comments ] = await mysql().from('comments').where({['blog_id']: id}).orderBy('created_at', 'DESC').select('*');
+
+    return comments;
+}
+
+async function edit(condition, columns) {
+    const [ result ] = await mysql().where(condition).update('comments', columns);
+
+    return result;
+}
+
+async function deleteComment(condition) {
+    const [ result ] = await mysql().from('comments').where(condition).delete();
+
+    return result;
+}
+
 module.exports = {
-    addComment
+    addComment,
+    get,
+    edit,
+    deleteComment
 };
