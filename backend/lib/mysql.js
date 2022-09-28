@@ -64,6 +64,12 @@ class Mysql {
 
         return db.query(this.sql);
     }
+
+    orderBy(column, order) {
+        this.sql += ` ORDER BY ${column} ${order || ''}`;
+
+        return this;
+    }
 }
 
 const _mysql = new Mysql();
