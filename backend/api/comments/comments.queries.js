@@ -2,14 +2,17 @@ const mysql = require('../../lib/mysql');
 
 async function addComment(comment) {
     const [ result ] = await mysql().insertInto('comments', comment);
-    const [ addedComment ] = await mysql().from('comments').where({id: result.insertId}).select('*');
-
+    const [ addedComment ] = await mysql().join('comments', 'users', 'comments.author_id', 'users.id')
+                                        .where({['comments.id']: result.insertId})
+                                        .select(['comments.id', 'comments.body', 'comments.blog_id', 'users.username AS author', 'comments.created_at', 'comments.updated_at']);
     return addedComment;
 }
 
 async function get(id) {
-    const [ comments ] = await mysql().from('comments').where({['blog_id']: id}).orderBy('created_at', 'DESC').select('*');
-
+    const [ comments ] = await mysql().join('comments', 'users', 'comments.author_id', 'users.id')
+                                    .where({blog_id: id})
+                                    .orderBy('created_at', 'DESC')
+                                    .select(['comments.id', 'comments.body', 'comments.blog_id', 'users.username AS author', 'comments.created_at', 'comments.updated_at']);
     return comments;
 }
 

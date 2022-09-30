@@ -2,6 +2,7 @@ const express = require('express');
 const commentSchema = require('./comments.schema');
 const checkAuth = require('../../middleware/checkAuth');
 const query = require('./comments.queries');
+const isPostOwner = require('../../middleware/isPostOwner');
 
 const router = express.Router();
 
@@ -57,9 +58,9 @@ router.patch('/:id', checkAuth, async (req, res, next) => {
     }
 });
 
-router.delete('/:id', checkAuth, async (req, res, next) => {
+router.delete('/:id', checkAuth, isPostOwner, async (req, res, next) => {
     try {
-        const result = await query.deleteComment({id: req.params.id, author_id: req.session.user.id});
+        const result = await query.deleteComment(res.locals.isPostOwner ? {id: req.params.id} : {id: req.params.id, author_id: req.session.user.id});
         
         if (result.affectedRows === 0) {
             res.status(400);
