@@ -4,7 +4,7 @@ function errorHandler(error, req, res, next) {
     res.status(statusCode);
     res.json({
         status: statusCode,
-        message: error.message,
+        message: res.statusCode === 500 ? 'Oops! Something went wrong.' : error.message,
         stack: process.env.NODE_ENV === 'production' ? null : error.stack
     });
 }
