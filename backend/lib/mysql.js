@@ -49,7 +49,7 @@ class Mysql {
         } else {
             this.sql += `FROM ${tableName1} JOIN ${tableName2} ON ${first} = ${second}`;
         }
-
+        console.log(this.sql);
         return this;
     }
 
@@ -67,6 +67,12 @@ class Mysql {
 
     orderBy(column, order) {
         this.sql += ` ORDER BY ${column} ${order || ''}`;
+
+        return this;
+    }
+
+    limit(offset, rowCount) {
+        this.sql += ` LIMIT ${offset}, ${rowCount}`;
 
         return this;
     }

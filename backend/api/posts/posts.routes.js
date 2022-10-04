@@ -130,13 +130,14 @@ router.delete('/:id', checkAuth, async (req, res, next) => {
     }
 });
 
-router.get('/dashboard', checkAuth, async (req, res, next) => {
+router.get('/dashboard/:offset', checkAuth, async (req, res, next) => {
     try {
         const posts = await query.get(
             {
                 ['users.id']: req.session.user.id
             },
-            ['blog_posts.id', 'blog_posts.title', 'blog_posts.published']
+            ['blog_posts.id', 'blog_posts.title', 'blog_posts.published'],
+            req.params.offset
         );
 
         res.json(posts);
@@ -147,34 +148,43 @@ router.get('/dashboard', checkAuth, async (req, res, next) => {
 
 router.get('/:slug', async (req, res, next) => {
     try {
-        const result = await query.get(
-            {
-                ['slugs.name']: req.params.slug,
-                ['blog_posts.published']: true
-            },
-            ['blog_posts.id', 'blog_posts.title', 'blog_posts.body', 'blog_posts.img_header', 'users.username AS author', 'blog_posts.created_at','blog_posts.updated_at']
-        );
+        const post = await query.getWithTags(req.params.slug);
 
-        if (result.length === 0) {
+        if (post.length === 0) {
             res.status(404);
             throw new Error('Not found.');
         }
 
-        res.json(result);
+        res.json(post);
     } catch (error) {
         next(error);
     }
 });
 
-router.get('/user-posts/:user', async (req, res, next) => {
+router.get('/user-posts/:user/:offset', async (req, res, next) => {
     try {
         const posts = await query.get(
             {
                 ['users.username']: req.params.user,
                 ['blog_posts.published']: true
             },
-            ['blog_posts.id', 'blog_posts.title', 'slugs.name AS slug']
+            ['blog_posts.id', 'blog_posts.title', 'slugs.name AS slug'],
+            req.params.offset
         );
+
+        res.json(posts);
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.get('/:offset', async (req, res, next) => {
+    try {
+        const posts = await query.get(
+                {['blog_posts.published']: true},
+                ['blog_posts.id', 'blog_posts.title', 'blog_posts.created_at', 'blog_posts.updated_at', 'slugs.name AS slug'],
+                req.params.offset
+            );
 
         res.json(posts);
     } catch (error) {

@@ -44,10 +44,11 @@ async function deletePost(condition) {
     return post;
 }
 
-async function get(condition, columns) {
+async function get(condition, columns, offset = 0) {
     const [ post ] = await mysql().join('slugs', 'blog_posts', 'slugs.blog_id', 'blog_posts.id')
                         .join('blog_posts', 'users', 'blog_posts.author_id', 'users.id')
                         .where(condition)
+                        .limit(offset, 10)
                         .select(columns);
 
     if (post.length === 0) {
@@ -55,6 +56,36 @@ async function get(condition, columns) {
     }
 
     return post;
+}
+
+async function getWithTags(slug) {
+    const [ result ] = await mysql().join('slugs', 'blog_posts', 'slugs.blog_id', 'blog_posts.id')
+                    .join('blog_posts', 'users', 'blog_posts.author_id', 'users.id')
+                    .join('blog_posts', 'tags', 'blog_posts.id', 'tags.blog_id')
+                    .where({
+                        ['slugs.name']: slug,
+                        ['blog_posts.published']: true
+                    })
+                    .select(['blog_posts.id', 'blog_posts.title', 'blog_posts.body', 'blog_posts.img_header', 'users.username AS author', 'blog_posts.created_at','blog_posts.updated_at', 'tags.name']);
+    
+    if (result.length === 0) {
+        return [];
+    }
+
+    const post = {
+        id: result[0].id,
+        title: result[0].title,
+        body: result[0].body,
+        img_header: result[0].img_header,
+        author: result[0].author,
+        created_at: result[0].created_at,
+        updated_at: result[0].updated_at
+    }
+    const tags = result.map(p => p.name);
+    post.tags = tags;
+
+    return post;
+    
 }
 
 async function getOne(condition) {
@@ -70,5 +101,6 @@ module.exports = {
     private,
     deletePost,
     get,
-    getOne
+    getOne,
+    getWithTags
 };
