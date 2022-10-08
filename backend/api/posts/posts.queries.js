@@ -44,7 +44,7 @@ async function deletePost(condition) {
     return post;
 }
 
-async function get(condition, columns, offset = 0) {
+async function get(condition, columns, offset) {
     const [ post ] = await mysql().join('slugs', 'blog_posts', 'slugs.blog_id', 'blog_posts.id')
                         .join('blog_posts', 'users', 'blog_posts.author_id', 'users.id')
                         .where(condition)

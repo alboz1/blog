@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get('/', async (req, res, next) => {
     try {
-        const tags = await query.get('name', {['blog_posts.published']: true});
+        const tags = await query.getAll();
         const uniqueTags = [... new Set(tags.map(tag => tag.name))];
         
         res.json(uniqueTags);
@@ -16,7 +16,7 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:tag', async (req, res, next) => {
     try {
-        const posts = await query.get(['blog_posts.title'], {
+        const posts = await query.get(['blog_posts.title', 'slugs.name AS slug'], {
             ['tags.name']: req.params.tag,
             ['blog_posts.published']: true
         });

@@ -49,7 +49,7 @@ class Mysql {
         } else {
             this.sql += `FROM ${tableName1} JOIN ${tableName2} ON ${first} = ${second}`;
         }
-        console.log(this.sql);
+
         return this;
     }
 
