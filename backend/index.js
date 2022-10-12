@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 
 const errorHandler = require('./middleware/errorHandler');
 const notFound = require('./middleware/notFound');
@@ -8,7 +9,10 @@ const api = require('./api');
 
 const app = express();
 
-const port = process.env.PORT || 3000;
+app.use(cors({
+    origin: 'http://localhost:3000'
+}));
+const port = process.env.PORT || 5000;
 app.use(expressSession);
 app.use(express.json());
 
